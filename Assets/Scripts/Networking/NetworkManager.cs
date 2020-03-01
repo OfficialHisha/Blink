@@ -218,7 +218,7 @@ public class NetworkManager : MonoBehaviour
                         lobbyClients = JsonConvert.DeserializeObject<LobbyClient[]>(json["players"].ToString());
                         break;
                     case PacketType.Start:
-                        requestedScene = "Game";
+                        requestedScene = "Game 1";
                         break;
                     case PacketType.SpawnEntity:
                         SpawnEntityPacket SpawnPacket = new SpawnEntityPacket(int.Parse(json["entityId"].ToString()), json["owner"].ToString(), float.Parse(json["x"].ToString()), float.Parse(json["y"].ToString()), bool.Parse(json["isSelf"].ToString()));

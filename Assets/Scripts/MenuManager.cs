@@ -7,6 +7,8 @@ public class MenuManager : MonoBehaviour
     public TMP_InputField playerNameInput;
     public TMP_InputField serverHostInput;
 
+    public TextMeshProUGUI statusText;
+
     Coroutine connRoutine;
 
     // Start is called before the first frame update
@@ -35,6 +37,7 @@ public class MenuManager : MonoBehaviour
 
     public void OnConnectButton()
     {
+        statusText.text = $"Connecting to {serverHostInput.text}";
         connRoutine = StartCoroutine(Connect());
     }
 
@@ -43,7 +46,10 @@ public class MenuManager : MonoBehaviour
         int timeout = 10;
         int current = 0;
 
-        NetworkManager.instance.Connect(serverHostInput.text);
+        if (serverHostInput.text == "jam")
+            NetworkManager.instance.Connect("40.86.74.238");
+        else
+            NetworkManager.instance.Connect(serverHostInput.text);
 
         while (!NetworkManager.instance.connected)
         {
@@ -52,7 +58,11 @@ public class MenuManager : MonoBehaviour
             current++;
 
             if (current == timeout)
+            {
                 StopCoroutine(connRoutine);
+                statusText.text = "Connection timed out";
+            }
+                
         }
 
         NetworkManager.instance.Send(new HandshakePacket(playerNameInput.text));

@@ -6,6 +6,7 @@
     Relocation,
     Visibility,
     LobbyState,
+    LobbyReturn,
     Disconnect,
     Start,
     Loaded,

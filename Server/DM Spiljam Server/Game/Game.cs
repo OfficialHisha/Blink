@@ -48,8 +48,11 @@ namespace DM_Spiljam_Server
             if (finishedPlayers.Count == entityMap.Count)
             {
                 // Everyone has finished
+                Program.GamePhase = GamePhase.EndGame;
                 List<KeyValuePair<string, TimeStamp>> myList = finishedPlayers.ToList();
                 Program.Broadcast(new AllFinishedPacket(myList.OrderBy(x => x.Value.Minutes).ThenBy(x => x.Value.Seconds).ThenBy(x => x.Value.Frames).ToList()));
+                entityMap.Clear();
+                finishedPlayers.Clear();
             }
         }
     }

@@ -8,6 +8,7 @@ namespace DM_Spiljam_Server
     static class Lobby
     {
         public static Dictionary<NetworkStream, LobbyClient> LobbyClients { get; } = new Dictionary<NetworkStream, LobbyClient>();
+        public static List<NetworkStream> ReturningClients { get; } = new List<NetworkStream>();
 
         public static void AddLobbyClient(NetworkStream client, string name)
         {
@@ -27,6 +28,9 @@ namespace DM_Spiljam_Server
 
             if (LobbyClients.Values.All(c => c.Ready))
             {
+                foreach (LobbyClient player in LobbyClients.Values)
+                    player.Ready = false;
+
                 Program.GamePhase = GamePhase.Game;
                 Program.Broadcast(new StartPacket());
             }

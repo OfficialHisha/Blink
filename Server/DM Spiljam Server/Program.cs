@@ -113,7 +113,7 @@ namespace DM_Spiljam_Server
                             break;
                         case PacketType.Ready:
                             if (GamePhase != GamePhase.Lobby)
-                                return;
+                                continue;
 
                             Lobby.SetReady(clientStream, bool.Parse(json["ready"].ToString()));
                             break;
@@ -133,7 +133,25 @@ namespace DM_Spiljam_Server
                             Broadcast(new VisibilityPacket(int.Parse(json["entityId"].ToString()), bool.Parse(json["visible"].ToString())), new NetworkStream[] { clientStream });
                             break;
                         case PacketType.Finish:
+                            if (GamePhase != GamePhase.Game)
+                                continue;
+
                             Game.AddFinishedEntity(clientStream, new TimeStamp(int.Parse(json["minutes"].ToString()), int.Parse(json["seconds"].ToString()), int.Parse(json["frames"].ToString())));
+                            break;
+                        case PacketType.LobbyReturn:
+                            if (GamePhase != GamePhase.EndGame)
+                                continue;
+
+                            if (Lobby.ReturningClients.Contains(clientStream))
+                                continue;
+
+                            Lobby.ReturningClients.Add(clientStream);
+                            if (Lobby.ReturningClients.Count == Lobby.LobbyClients.Count)
+                            {
+                                GamePhase = GamePhase.Lobby;
+                                Broadcast(new LobbyStatePacket(Lobby.LobbyClients.Values.ToArray()));
+                                Lobby.ReturningClients.Clear();
+                            }
                             break;
                         default:
                             Console.WriteLine("Invalid packet type received");
@@ -159,7 +177,11 @@ namespace DM_Spiljam_Server
             if (GamePhase == GamePhase.Game)
                 Game.DestroyEntityForClient(client);
 
+            if (Lobby.ReturningClients.Contains(client))
+                Lobby.ReturningClients.Remove(client);
             Lobby.RemoveLobbyClient(client);
+
+
             clientConnections.Remove(client);
 
             if (clientConnections.Count == 0)

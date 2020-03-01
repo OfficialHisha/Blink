@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-public class VisibilityPacket : Packet
+class VisibilityPacket : Packet
 {
     class Data
     {

@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -61,6 +61,18 @@ public class RoomManager : MonoBehaviour
             GameObject obj = Instantiate(scoreboardEntryPrefab, scoreboardContent.transform);
             obj.GetComponent<TextMeshProUGUI>().text = $"{place++}. {player.Key} - {player.Value.ToString()}";
         }
+
+        StartCoroutine(LobbyReturnCounter());
+    }
+
+    public void OnDisconnectButton()
+    {
+        NetworkManager.instance.Disconnect();
+    }
+
+    public void OnLobbyReturnButton()
+    {
+        NetworkManager.instance.Send(new LobbyReturnPacket());
     }
 
     IEnumerator Counter()
@@ -80,6 +92,15 @@ public class RoomManager : MonoBehaviour
                 minutes++;
             }
         }
+    }
+
+    IEnumerator LobbyReturnCounter()
+    {
+        DateTime lobbyReturnTime = DateTime.Now.AddSeconds(30);
+        while (DateTime.Now < lobbyReturnTime)
+            yield return null;
+
+        NetworkManager.instance.Send(new LobbyReturnPacket());
     }
 
     void Launch()
